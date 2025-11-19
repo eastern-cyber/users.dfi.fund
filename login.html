@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DProject - Users</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css" rel="stylesheet">
+</head>
+<body>
+  <div class="login">
+    <img src="./images/login-bg.png" alt="login image" class="login__img">
+    <form class="login__form" id="loginForm">
+      <img src="./images/favicon.ico" alt="login image" class="logo__img">
+      <h1 class="login__title">Login</h1>
+      
+      <div class="error-message" id="errorMessage"></div>
+
+      <div class="login__content">
+        <div class="login__box">
+          <i class="ri-mail-line login__icon"></i>
+          <div class="login__box-input">
+            <input type="email" name="email" required class="login__input" id="emailInput" placeholder="">
+            <label for="email" class="login__label">Email</label>
+          </div>
+        </div>
+
+        <div class="login__box">
+          <i class="ri-lock-2-line login__icon"></i>
+          <div class="login__box-input">
+            <input type="password" name="password" class="login__input" id="login-pass" placeholder="">
+            <label for="password" class="login__label">Password</label>
+            <i class="ri-eye-off-line login__eye" id="login-eye"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="login__check">
+        <div class="login__check-group">
+          <input type="checkbox" name="remember" class="login__check-input" id="rememberCheck">
+          <label for="remember" class="login__check-label">Remember me</label>
+        </div>
+        <a href="#" class="login__forgot">Forgot Password?</a>
+      </div>
+
+      <button type="submit" class="login__button">Login</button>
+
+      <p class="login__register">
+        Don't have an account? <a href="#">Register</a>
+      </p>
+    </form>
+  </div>
+
+  <script>
+    // Mock user database - in production, this would be your PostgreSQL
+    const mockUsers = {
+      'rphumi799@gmail.com': {
+        name: 'John Doe',
+        user_id: '0x7a7D8894F59139370eBA12296EEb279b84fE017F',
+        referrer_id: '0x1234567890abcdef',
+        created_at: '2024-01-15',
+        token_id: 'TOKEN_001',
+        plan_a: { 
+          plan: 'Premium', 
+          status: 'active',
+          features: ['Unlimited Storage', 'Priority Support', 'Advanced Analytics'],
+          expires: '2024-12-31'
+        }
+      },
+      'test@example.com': {
+        name: 'Test User',
+        user_id: '0x1234567890abcdef',
+        referrer_id: null,
+        created_at: '2024-03-20',
+        token_id: 'TOKEN_002',
+        plan_a: { 
+          plan: 'Basic', 
+          status: 'active',
+          features: ['5GB Storage', 'Email Support', 'Basic Analytics'],
+          expires: '2024-06-30'
+        }
+      }
+    };
+
+    // Future enhancement - replace mock data with real API
+    async function loginUser(email) {
+      try {
+        const response = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        
+        if (response.ok) {
+          const user = await response.json();
+          return user;
+        } else {
+          throw new Error('User not found');
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        return null;
+      }
+    }
+
+    /*--================== Show Hidden - Password =================*/
+    const showHiddenPass = (loginPass, loginEye) => {
+      const input = document.getElementById(loginPass),
+            iconEye = document.getElementById(loginEye);
+
+      iconEye.addEventListener('click', () => {
+        if(input.type === 'password'){
+          input.type = 'text';
+          iconEye.classList.add('ri-eye-line');
+          iconEye.classList.remove('ri-eye-off-line');
+        } else {
+          input.type = 'password';
+          iconEye.classList.remove('ri-eye-line');
+          iconEye.classList.add('ri-eye-off-line');
+        }
+      });
+    }
+
+    showHiddenPass('login-pass', 'login-eye');
+
+    /*--================== Login Handler =================*/
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('emailInput').value.trim().toLowerCase();
+      const errorMessage = document.getElementById('errorMessage');
+      const rememberMe = document.getElementById('rememberCheck').checked;
+      
+      if (!email) {
+        errorMessage.textContent = 'Please enter your email';
+        errorMessage.classList.add('show');
+        return;
+      }
+
+      // Check if user exists
+      if (mockUsers[email]) {
+        const user = mockUsers[email];
+        
+        // Store user data
+        if (rememberMe) {
+          // Store in localStorage for persistence
+          localStorage.setItem('currentUser', JSON.stringify({...user, email}));
+        } else {
+          // Store in sessionStorage for session only
+          sessionStorage.setItem('currentUser', JSON.stringify({...user, email}));
+        }
+        
+        // Redirect to user details
+        window.location.href = 'userdetails.html';
+      } else {
+        errorMessage.textContent = 'User not found. Try: rphumi799@gmail.com or test@example.com';
+        errorMessage.classList.add('show');
+      }
+    });
+
+    // Remove error message when user starts typing
+    document.querySelectorAll('.login__input').forEach(input => {
+      input.addEventListener('input', () => {
+        document.getElementById('errorMessage').classList.remove('show');
+      });
+    });
+
+    // Check if user is already logged in
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+      if (savedUser) {
+        const user = JSON.parse(savedUser);
+        document.getElementById('emailInput').value = user.email;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Details - DProject</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css" rel="stylesheet">
+    <style>
+        /* Background solution */
+        .login {
+            position: relative;
+            min-height: 100vh;
+            display: grid;
+            align-items: start;
+            padding: 2rem 0;
+            background-image: url('./images/login-bg.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .login__img {
+            display: none;
+        }
+
+        /* Add dark overlay to improve readability */
+        .login::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 0;
+        }
+
+        .user-details-container {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            z-index: 1;
+        }
+        
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(255,255,255,0.2);
+        }
+        
+        .user-card {
+            background: rgba(0, 0, 0, 0.6); /* Much darker background */
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            transition: transform 0.3s ease;
+            color: white;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .user-card:hover {
+            transform: translateY(-5px);
+            background: rgba(0, 0, 0, 0.7);
+        }
+        
+        .logout-btn {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 2px solid rgba(255,255,255,0.3);
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logout-btn:hover {
+            background: white;
+            color: black;
+            border-color: white;
+        }
+        
+        .user-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .user-id {
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            word-break: break-all;
+            font-size: 0.9rem;
+            display: block;
+            margin-top: 0.5rem;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            color: white;
+        }
+        
+        .card-icon {
+            font-size: 2rem;
+            margin-right: 1rem;
+            color: #4cc9f0;
+        }
+        
+        .welcome-section {
+            text-align: center;
+            margin-bottom: 3rem;
+            color: white;
+        }
+        
+        .welcome-section h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, #4cc9f0, #4361ee);
+            background-clip: text; /* Standard property */
+            -webkit-background-clip: text; /* Vendor prefix for Webkit browsers */
+            -webkit-text-fill-color: transparent; /* Vendor prefix for Webkit */
+            color: transparent; /* Fallback for other browsers */
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .action-btn {
+            background: rgba(255,255,255,0.08);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.15);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 0.9rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .action-btn:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-2px);
+            border-color: rgba(255,255,255,0.3);
+        }
+        
+        .action-btn i {
+            font-size: 1.5rem;
+        }
+        
+        .actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+        
+        /* Ensure all text is visible with better contrast */
+        .user-card p,
+        .user-card strong,
+        .user-card span:not(.user-id) {
+            color: rgba(255, 255, 255, 0.95);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .user-card h3 {
+            color: white;
+            margin: 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        /* Status colors with better visibility */
+        .status-active {
+            color: #51cf66 !important;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+        
+        .status-inactive {
+            color: #ff6b6b !important;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
+  <div class="login">
+    <!-- Remove or keep the img tag - it will be hidden by CSS -->
+    <img src="./images/login-bg.png" alt="background image" class="login__img">
+    <div class="user-details-container">
+      <!-- Your existing content remains the same -->
+      <div class="user-header">
+        <img src="./images/favicon.ico" alt="login image" class="logo__img">
+        <p>
+        <h1 style="font-size: 2.5rem; background: linear-gradient(45deg, #ff9a9e, #fad0c4); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+          Dashboard
+        </h1>
+        </p>
+        <a href="login.html" class="logout-btn" onclick="logout()">
+          <i class="ri-logout-box-r-line"></i> Logout
+        </a>
+      </div>
+      
+      <div class="welcome-section">
+        <h2 id="welcomeMessage">Welcome back!</h2>
+        <p>Here's your account information</p>
+      </div>
+
+      <div class="user-grid">
+        <div class="user-card">
+          <div class="card-header">
+            <i class="ri-user-3-line card-icon"></i>
+            <h3>Personal Information</h3>
+          </div>
+          <p><strong>Name:</strong> <span id="displayName">Loading...</span></p>
+          <p><strong>Email:</strong> <span id="displayEmail">Loading...</span></p>
+          <p><strong>User ID:</strong> <span id="displayUserId" class="user-id">Loading...</span></p>
+        </div>
+
+        <div class="user-card">
+          <div class="card-header">
+            <i class="ri-time-line card-icon"></i>
+            <h3>Account Timeline</h3>
+          </div>
+          <p><strong>Member since:</strong> <span id="createdAt">Loading...</span></p>
+          <p><strong>Referrer ID:</strong> <span id="referrerId" class="user-id">Loading...</span></p>
+        </div>
+
+        <div class="user-card">
+          <div class="card-header">
+            <i class="ri-shield-keyhole-line card-icon"></i>
+            <h3>Security</h3>
+          </div>
+            <p><strong>Password:</strong> <span class="status-inactive">Not Set</span></p>
+            <p><strong>Status:</strong> <span class="status-active">Active</span></p>
+
+        </div>
+      </div>
+
+      <div class="user-grid">
+        <div class="user-card">
+          <div class="card-header">
+            <i class="ri-token-swap-line card-icon"></i>
+            <h3>Token Information</h3>
+          </div>
+          <p><strong>Token ID:</strong> <span id="tokenId">Loading...</span></p>
+          <p><strong>Token Balance:</strong> <span id="tokenBalance">0.00</span></p>
+        </div>
+
+        <div class="user-card">
+          <div class="card-header">
+            <i class="ri-team-line card-icon"></i>
+            <h3>Referral Program</h3>
+          </div>
+          <p><strong>Referrals:</strong> <span id="referralCount">0</span></p>
+          <p><strong>Referral Code:</strong> <span class="user-id" id="referralCode">Loading...</span></p>
+        </div>
+      </div>
+
+      <div class="user-card">
+        <div class="card-header">
+          <i class="ri-flashlight-line card-icon"></i>
+          <h3>Quick Actions</h3>
+        </div>
+        <div class="actions-grid">
+          <button class="action-btn" onclick="showProfile()">
+            <i class="ri-user-settings-line"></i>
+            <span>Edit Profile</span>
+          </button>
+          <button class="action-btn" onclick="showReferrals()">
+            <i class="ri-share-line"></i>
+            <span>Share Referral</span>
+          </button>
+          <button class="action-btn" onclick="showTokens()">
+            <i class="ri-coins-line"></i>
+            <span>View Tokens</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="user-card">
+        <div class="card-header">
+          <i class="ri-settings-5-line card-icon"></i>
+          <h3>Plan Details</h3>
+        </div>
+        <div id="planDetails">Loading plan information...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Your existing JavaScript remains the same
+    function loadUserData() {
+      const savedUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+      
+      if (!savedUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      const user = JSON.parse(savedUser);
+      
+      document.getElementById('welcomeMessage').textContent = `Welcome back, ${user.name}!`;
+      document.getElementById('displayName').textContent = user.name;
+      document.getElementById('displayEmail').textContent = user.email;
+      document.getElementById('displayUserId').textContent = user.user_id;
+      document.getElementById('createdAt').textContent = user.created_at;
+      document.getElementById('referrerId').textContent = user.referrer_id || 'None';
+      document.getElementById('tokenId').textContent = user.token_id || 'Not assigned';
+      document.getElementById('referralCode').textContent = user.user_id?.substring(0, 16) + '...' || 'Not available';
+      
+      const joinDate = new Date(user.created_at);
+      const daysSinceJoin = Math.floor((new Date() - joinDate) / (1000 * 60 * 60 * 24));
+      document.getElementById('referralCount').textContent = Math.floor(daysSinceJoin / 30);
+
+        if (user.plan_a) {
+            document.getElementById('planDetails').innerHTML = `
+                <p><strong>Plan:</strong> ${user.plan_a.plan}</p>
+                <p><strong>Status:</strong> <span class="status-active">${user.plan_a.status}</span></p>
+                ${user.plan_a.features ? `<p><strong>Features:</strong> ${user.plan_a.features.join(', ')}</p>` : ''}
+                ${user.plan_a.expires ? `<p><strong>Expires:</strong> ${user.plan_a.expires}</p>` : ''}
+            `;
+        }
+    }
+    
+    function logout() {
+      localStorage.removeItem('currentUser');
+      sessionStorage.removeItem('currentUser');
+    }
+    
+    function showProfile() {
+      alert('Profile editing would open here in a real application');
+    }
+    
+    function showReferrals() {
+      const userId = document.getElementById('displayUserId').textContent;
+      alert(`Share your referral link: https://dfi.fund/ref/${userId}`);
+    }
+    
+    function showTokens() {
+      alert('Token management dashboard would open here');
+    }
+    
+    document.addEventListener('DOMContentLoaded', loadUserData);
+  </script>
+</body>
+</html>
