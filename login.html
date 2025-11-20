@@ -3,18 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DProject - Users</title>
+  <title>DProject - Login</title>
   <link rel="stylesheet" href="style.css">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css" rel="stylesheet">
 </head>
 <body>
   <div class="login">
     <img src="./images/login-bg.png" alt="login image" class="login__img">
-    <form action="scripts/login.php" method="POST" class="login__form" id="loginForm">
+    <form class="login__form" id="loginForm">
       <img src="./images/favicon.ico" alt="login image" class="logo__img">
       <h1 class="login__title">Login</h1>
       
       <div class="error-message" id="errorMessage"></div>
+      <div class="success-message" id="successMessage"></div>
 
       <div class="login__content">
         <div class="login__box">
@@ -43,7 +44,7 @@
         <a href="#" class="login__forgot">Forgot Password?</a>
       </div>
 
-      <button type="submit" class="login__button">Login</button>
+      <button type="button" class="login__button" id="loginButton">Login</button>
 
       <p class="login__register">
         Don't have an account? <a href="#">Register</a>
@@ -52,6 +53,27 @@
   </div>
 
   <script>
+    // Updated configuration for local XAMPP MySQL
+    // Configuration for local XAMPP MySQL
+    const API_CONFIG = {
+      baseUrl: 'http://localhost/users.dfi.fund', // Your XAMPP local server
+      endpoints: {
+        users: '/api/users.php',
+        login: '/api/users.php',
+        validate: '/api/users.php'
+      }
+    };
+
+    // // Configuration for cross-domain API calls
+    // const API_CONFIG = {
+    //   baseUrl: 'https://www.dfi.fund/api', // Your Next.js app domain
+    //   endpoints: {
+    //     users: '/users',
+    //     login: '/auth/login',
+    //     validate: '/auth/validate'
+    //   }
+    // };
+
     /*--================== Show Hidden - Password =================*/
     const showHiddenPass = (loginPass, loginEye) => {
       const input = document.getElementById(loginPass),
@@ -72,26 +94,328 @@
 
     showHiddenPass('login-pass', 'login-eye');
 
-    /*--================== Form Validation =================*/
-    document.querySelector('.login__form').addEventListener('submit', function(e) {
-      const email = this.querySelector('input[name="email"]').value;
-      const errorMessage = document.getElementById('errorMessage');
+    /*--================== Utility Functions =================*/
+    const showMessage = (message, type = 'error') => {
+      const element = document.getElementById(type === 'error' ? 'errorMessage' : 'successMessage');
+      const otherElement = document.getElementById(type === 'error' ? 'successMessage' : 'errorMessage');
       
-      // Only validate email (allow empty password)
-      if (!email) {
-        e.preventDefault();
-        errorMessage.textContent = 'Please enter your email';
-        errorMessage.classList.add('show');
+      element.textContent = message;
+      element.classList.add('show');
+      otherElement.classList.remove('show');
+    };
+
+    const clearMessages = () => {
+      document.getElementById('errorMessage').classList.remove('show');
+      document.getElementById('successMessage').classList.remove('show');
+    };
+
+    const setLoading = (isLoading) => {
+      const loginButton = document.getElementById('loginButton');
+      if (isLoading) {
+        loginButton.textContent = 'Logging in...';
+        loginButton.disabled = true;
+      } else {
+        loginButton.textContent = 'Login';
+        loginButton.disabled = false;
       }
-      // Password can be empty - don't validate it
+    };
+
+    /*--================== API Functions with CORS Handling =================*/
+    const fetchWithCORS = async (url, options = {}) => {
+      try {
+        const response = await fetch(url, {
+          ...options,
+          mode: 'cors', // Important for cross-origin requests
+          credentials: 'include', // Include cookies if needed
+          headers: {
+            'Content-Type': 'application/json',
+            ...options.headers,
+          }
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        return await response.json();
+      } catch (error) {
+        console.error('Fetch error:', error);
+        throw error;
+      }
+    };
+
+    const validateUser = async (email, password) => {
+      try {
+        console.log('Validating user via local MySQL API:', email);
+        
+        // Try to validate user via local MySQL API
+        const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.login}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ 
+            email: email,
+            password: password
+          })
+        });
+        
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        const result = await response.json();
+        
+        // Fix: Check the correct response structure
+        if (result.success && result.data) {
+          console.log('User found in MySQL database:', result.data);
+          
+          return {
+            success: true,
+            user: result.data,
+            token: generateToken(result.data),
+            usingLocalDB: true
+          };
+        } else {
+          throw new Error(result.message || 'Login failed');
+        }
+
+      } catch (error) {
+        console.error('Local MySQL API error:', error);
+        
+        // Fallback to mock data if local API is unavailable
+        console.log('Falling back to mock data...');
+        return await validateWithMockData(email, password);
+      }
+    };
+
+    /*--================== Fallback Mock Validation =================*/
+    const enhancedMockUsers = {
+      'rphumi799@gmail.com': {
+        id: 1,
+        name: 'John Doe',
+        email: 'rphumi799@gmail.com',
+        user_id: '0x7a7D8894F59139370eBA12296EEb279b84fE017F',
+        referrer_id: '0x1234567890abcdef',
+        token_id: 'TOKEN_001',
+        created_at: '2024-01-15T10:30:00Z',
+        updated_at: '2024-01-15T10:30:00Z',
+        plan_a: {
+          dateTime: '2024-01-15T10:30:00Z',
+          POL: 1500.50,
+          rateTHBPOL: 35.75,
+          txHash: '0xabc123def456...',
+          status: 'active'
+        }
+      },
+      'test@example.com': {
+        id: 2,
+        name: 'Test User',
+        email: 'test@example.com',
+        user_id: '0x1234567890abcdef1234567890abcdef12345678',
+        referrer_id: null,
+        token_id: 'TOKEN_002',
+        created_at: '2024-03-20T14:25:00Z',
+        updated_at: '2024-03-20T14:25:00Z',
+        plan_a: {
+          dateTime: '2024-03-20T14:25:00Z',
+          POL: 500.25,
+          rateTHBPOL: 34.20,
+          txHash: '0xdef456abc123...',
+          status: 'pending'
+        }
+      }
+    };
+
+    const validateWithMockData = async (email, password) => {
+      return new Promise((resolve) => {
+        setTimeout(() => {
+          const user = enhancedMockUsers[email.toLowerCase()];
+          if (user) {
+            resolve({
+              success: true,
+              user: user,
+              token: generateToken(user),
+              usingMockData: true
+            });
+          } else {
+            resolve({
+              success: false,
+              error: 'User not found. Try: rphumi799@gmail.com or test@example.com'
+            });
+          }
+        }, 1000); // Simulate API delay
+      });
+    };
+
+    const generateToken = (user) => {
+      // Simple token generation for demo
+      return btoa(JSON.stringify({
+        userId: user.id,
+        email: user.email,
+        timestamp: Date.now(),
+        exp: Date.now() + (24 * 60 * 60 * 1000) // 24 hours
+      }));
+    };
+
+    /*--================== Login Handler =================*/
+    document.getElementById('loginButton').addEventListener('click', async function(e) {
+      e.preventDefault();
+      
+      const email = document.getElementById('emailInput').value.trim();
+      const password = document.getElementById('login-pass').value;
+      const rememberMe = document.getElementById('rememberCheck').checked;
+      
+      clearMessages();
+
+      // Basic validation
+      if (!email) {
+        showMessage('Please enter your email');
+        return;
+      }
+
+      if (!password) {
+        showMessage('Please enter your password');
+        return;
+      }
+
+      setLoading(true);
+
+      try {
+        console.log('Starting login process for:', email);
+        
+        const result = await validateUser(email, password);
+        
+        if (result.success) {
+          const message = result.usingLocalDB 
+            ? 'Login successful! Connected to local database' 
+            : 'Login successful! (Using demo data - API unavailable)';
+          
+          showMessage(message, 'success');
+          
+          // Store user data based on remember me preference
+          const storage = rememberMe ? localStorage : sessionStorage;
+          storage.setItem('currentUser', JSON.stringify({
+            ...result.user,
+            loginTime: new Date().toISOString(),
+            usingLocalDB: result.usingLocalDB || false
+          }));
+
+          // Store authentication token
+          if (result.token) {
+            storage.setItem('authToken', result.token);
+          }
+
+          console.log('Login successful, user data:', result.user);
+          
+          // Redirect to dashboard after short delay
+          setTimeout(() => {
+            window.location.href = 'userdetails-js.html';
+          }, 1500);
+
+        } else {
+          showMessage(result.error || 'Login failed. Please try again.');
+          setLoading(false);
+        }
+
+      } catch (error) {
+        console.error('Login process error:', error);
+        showMessage('Login error: ' + error.message);
+        setLoading(false);
+      }
     });
 
-    // Remove error message when user starts typing
-    document.querySelectorAll('.login__input').forEach(input => {
-      input.addEventListener('input', () => {
-        document.getElementById('errorMessage').classList.remove('show');
-      });
+    /*--================== Event Listeners =================*/
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      document.getElementById('loginButton').click();
     });
+
+    document.querySelectorAll('.login__input').forEach(input => {
+      input.addEventListener('input', clearMessages);
+    });
+
+    // Check if user is already logged in
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+      if (savedUser) {
+        try {
+          const user = JSON.parse(savedUser);
+          document.getElementById('emailInput').value = user.email || '';
+          showMessage('Welcome back! You are already logged in.', 'success');
+        } catch (error) {
+          console.error('Error parsing saved user:', error);
+          localStorage.removeItem('currentUser');
+          sessionStorage.removeItem('currentUser');
+        }
+      }
+
+      // Test API connection on load
+      testAPIConnection();
+    });
+
+    /*--================== API Connection Test =================*/
+    async function testAPIConnection() {
+      try {
+        console.log('Testing API connection to:', API_CONFIG.baseUrl);
+        const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.users}`, {
+          mode: 'cors',
+          credentials: 'include'
+        });
+        
+        if (response.ok) {
+          console.log('✅ API connection successful');
+          showMessage('Connected to database server', 'success');
+        } else {
+          console.warn('⚠️ API connection issue:', response.status);
+          showMessage('Using demo data - API server unavailable', 'success');
+        }
+      } catch (error) {
+        console.error('❌ API connection failed:', error.message);
+        showMessage('Using demo data - API server unavailable', 'success');
+      }
+    }
   </script>
+
+  <style>
+    .success-message {
+      display: none;
+      background: #d4edda;
+      color: #155724;
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      border: 1px solid #c3e6cb;
+      font-size: 14px;
+    }
+
+    .success-message.show {
+      display: block;
+    }
+
+    .error-message {
+      display: none;
+      background: #f8d7da;
+      color: #721c24;
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 16px;
+      border: 1px solid #f5c6cb;
+      font-size: 14px;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .login__button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .login__button {
+      transition: all 0.3s ease;
+    }
+  </style>
 </body>
 </html>

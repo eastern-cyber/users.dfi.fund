@@ -9,6 +9,7 @@
   --small-font-size: .813rem;
   --font-medium: 500; 
   --error-color: #ff6b6b;
+  --input-bg: rgba(255, 255, 255, 0.1); /* Light background for inputs */
 }
 
 * {
@@ -40,33 +41,7 @@ img {
   height: auto;
 }
 
-.user-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid rgba(255,255,255,0.2);
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 15px; /* This creates the 15px space between image and text */
-}
-
 .logo__img {
-  width: 54px;
-  height: 54px;
-  border-radius: 8px;
-  object-fit: cover;
-  object-position: center;
-  /* Remove the absolute positioning */
-  position: static;
-  margin: 0;
-}
-
-/* .logo__img {
   position: absolute;
   align-items: center;
   justify-content: right;
@@ -76,7 +51,7 @@ img {
   border-radius: 8px;
   object-fit: cover;
   object-position: center;
-} */
+}
 
 .login {
     position: relative;
@@ -139,26 +114,46 @@ img {
 .login__input {
   width: 100%;
   padding-block: 0.8rem;
-  background: none;
+  background: var(--input-bg); /* Light background */
   color: var(--white-color);
   position: relative;
   z-index: 1;
-  /* Prevent gray background on autofill */
-  background-color: transparent !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
+  border-radius: 4px 4px 0 0; /* Rounded top corners */
+  padding-left: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle border */
+  transition: all 0.3s ease;
 }
 
-/* Fix for autofill gray background */
+/* Focus state for better visibility */
+.login__input:focus {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Placeholder styling */
+.login__input::placeholder {
+  color: rgba(255, 255, 255, 0.7);
+  font-weight: var(--font-medium);
+}
+
+/* Autofill styling - FIXED */
 .login__input:-webkit-autofill,
-.login__input:-webkit-autofill:hover, 
-.login__input:-webkit-autofill:focus, 
+.login__input:-webkit-autofill:hover,
+.login__input:-webkit-autofill:focus,
 .login__input:-webkit-autofill:active {
-  -webkit-box-shadow: 0 0 0 100px transparent inset !important;
-  box-shadow: 0 0 0 100px transparent inset !important;
+  -webkit-box-shadow: 0 0 0 100px rgba(255, 255, 255, 0.1) inset !important;
+  box-shadow: 0 0 0 100px rgba(255, 255, 255, 0.1) inset !important;
   -webkit-text-fill-color: var(--white-color) !important;
-  background-color: transparent !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
   transition: background-color 5000s ease-in-out 0s;
+}
+
+/* For non-Webkit browsers */
+.login__input:autofill {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: var(--white-color) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
 }
 
 .login__box-input {
@@ -167,24 +162,35 @@ img {
 
 .login__label {
   position: absolute;
-  left: 0;
+  left: 0.5rem; /* Align with input padding */
   top: 13px;
   font-weight: var(--font-medium);
-  transition: top 0.3s, font-size 0.3s;
-  color: var(--white-color);
+  transition: top 0.3s, font-size 0.3s, color 0.3s;
+  color: rgba(255, 255, 255, 0.8);
+  pointer-events: none;
+  z-index: 2;
 }
 
 .login__eye {
   position: absolute;
-  right: 0;
-  top: 18px;
+  right: 0.5rem; /* Align with input padding */
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 10;
   cursor: pointer;
+  color: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.1);
+  padding: 0.25rem;
+  border-radius: 4px;
+}
+
+.login__eye:hover {
   color: var(--white-color);
+  background: rgba(255, 255, 255, 0.2);
 }
 
 .login__box:nth-child(2) input {
-  padding-right: 1.8rem;
+  padding-right: 3rem; /* More space for eye icon */
 }
 
 .login__check, .login__check-group {
@@ -246,10 +252,15 @@ img {
   text-decoration: underline;
 }
 
+/* Label animation - improved for better visibility */
 .login__input:focus + .login__label,
 .login__input:not(:placeholder-shown) + .login__label {
-  top: -12px;
+  top: -8px;
   font-size: var(--small-font-size);
+  color: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(0deg, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.8) 50%, transparent 50%);
+  padding: 0 0.25rem;
+  border-radius: 2px;
 }
 
 .error-message {
@@ -258,6 +269,10 @@ img {
   text-align: center;
   margin-bottom: 1rem;
   display: none;
+  background: rgba(255, 107, 107, 0.1);
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 107, 107, 0.3);
 }
 
 .error-message.show {

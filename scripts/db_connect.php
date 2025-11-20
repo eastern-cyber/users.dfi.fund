@@ -1,7 +1,7 @@
 <?php
-// Enable error reporting
+// Enable error reporting but don't display errors
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set('display_errors', 0);
 
 // Start session
 if (session_status() === PHP_SESSION_NONE) {
@@ -30,14 +30,13 @@ if (file_exists($envPath)) {
 $connectionString = getenv('DATABASE_URL');
 
 if (!$connectionString) {
-    die("❌ DATABASE_URL environment variable is not set");
+    throw new Exception("DATABASE_URL environment variable is not set");
 }
 
 try {
     $pdo = new PDO($connectionString);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    error_log("✅ Database connected successfully");
 } catch (PDOException $e) {
-    die("❌ Connection failed: " . $e->getMessage());
+    throw new Exception("Database connection failed: " . $e->getMessage());
 }
 ?>

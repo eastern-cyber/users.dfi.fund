@@ -1,0 +1,1084 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Details - DProject</title>
+  <link rel="stylesheet" href="style.css">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/3.5.0/remixicon.css" rel="stylesheet">
+  <style>
+    /* Your existing CSS styles remain the same */
+    /* Background solution */
+    .login {
+        position: relative;
+        min-height: 100vh;
+        display: grid;
+        align-items: start;
+        padding: 2rem 0;
+        background-image: url('./images/login-bg.png');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+    }
+
+    .login__img {
+        display: none;
+    }
+
+    .login::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 0;
+    }
+
+    .user-details-container {
+        position: relative;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+        z-index: 1;
+    }
+    
+    .user-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(255,255,255,0.2);
+    }
+    
+    .header-left {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .logo__img {
+        width: 54px;
+        height: 54px;
+        border-radius: 8px;
+        object-fit: cover;
+        object-position: center;
+        position: static;
+        margin: 0;
+    }
+    
+    .user-card {
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        transition: transform 0.3s ease;
+        color: white;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .user-card:hover {
+        transform: translateY(-5px);
+        background: rgba(0, 0, 0, 0.7);
+    }
+    
+    .logout-btn {
+        background: rgba(255,255,255,0.1);
+        color: white;
+        border: 2px solid rgba(255,255,255,0.3);
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        font-weight: 500;
+        backdrop-filter: blur(10px);
+    }
+    
+    .logout-btn:hover {
+        background: white;
+        color: black;
+        border-color: white;
+    }
+    
+    .user-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .user-id {
+        font-family: monospace;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        word-break: break-all;
+        font-size: 0.9rem;
+        display: block;
+        margin-top: 0.5rem;
+        color: white;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .card-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        color: white;
+    }
+    
+    .card-icon {
+        font-size: 2rem;
+        margin-right: 1rem;
+        color: #4cc9f0;
+    }
+    
+    .welcome-section {
+        text-align: center;
+        margin-bottom: 3rem;
+        color: white;
+    }
+    
+    .welcome-section h2 {
+        font-size: 28px;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(45deg, #4cc9f0, #4361ee);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+
+    .welcome-section h3 {
+        font-size: 24px;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(45deg, #c4ebec, #146295);
+        background-clip: text;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        color: transparent;
+        text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    
+    .action-btn {
+        background: rgba(255,255,255,0.08);
+        color: white;
+        border: 1px solid rgba(255,255,255,0.15);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: inherit;
+        font-size: 0.9rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        backdrop-filter: blur(10px);
+    }
+    
+    .action-btn:hover {
+        background: rgba(255,255,255,0.15);
+        transform: translateY(-2px);
+        border-color: rgba(255,255,255,0.3);
+    }
+    
+    .action-btn i {
+        font-size: 1.5rem;
+    }
+    
+    .actions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+    
+    .user-card p,
+    .user-card strong,
+    .user-card span:not(.user-id) {
+        color: rgba(255, 255, 255, 0.95);
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+    
+    .user-card h3 {
+        color: white;
+        margin: 0;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .status-active {
+        color: #51cf66 !important;
+        font-weight: 600;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+    
+    .status-inactive {
+        color: #ff6b6b !important;
+        font-weight: 600;
+        text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+    }
+
+    .demo-notice {
+        background: rgba(255,193,7,0.2);
+        border: 1px solid rgba(255,193,7,0.5);
+        border-radius: 0.5rem;
+        padding: 1rem;
+        margin-bottom: 2rem;
+        text-align: center;
+        color: #ffd54f;
+    }
+
+    .demo-notice.success {
+        background: rgba(76, 201, 240, 0.2);
+        border-color: rgba(76, 201, 240, 0.5);
+        color: #4cc9f0;
+    }
+
+    .demo-notice.error {
+        background: rgba(255, 107, 107, 0.2);
+        border-color: rgba(255, 107, 107, 0.5);
+        color: #ff6b6b;
+    }
+
+    .loading-spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255,255,255,.3);
+        border-radius: 50%;
+        border-top-color: #fff;
+        animation: spin 1s ease-in-out infinite;
+        margin-right: 10px;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .sync-btn {
+        background: rgba(76, 201, 240, 0.2);
+        color: #4cc9f0;
+        border: 1px solid rgba(76, 201, 240, 0.5);
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        cursor: pointer;
+        font-size: 0.8rem;
+        margin: 1rem;
+        margin-left: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .sync-btn:hover {
+        background: rgba(76, 201, 240, 0.3);
+    }
+
+    .sync-btn.loading {
+        opacity: 0.7;
+        pointer-events: none;
+    }
+
+    .api-status {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+        font-size: 0.8rem;
+    }
+
+    .api-status.connected {
+        color: #51cf66;
+    }
+
+    .api-status.disconnected {
+        color: #ff6b6b;
+    }
+  
+    /* Your existing CSS remains the same, just adding new styles for diagnostics */
+    .diagnostics-panel {
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 0.5rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: #4cc9f0;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .diagnostics-toggle {
+      background: rgba(76, 201, 240, 0.2);
+      color: #4cc9f0;
+      border: 1px solid rgba(76, 201, 240, 0.5);
+      padding: 0.25rem 0.5rem;
+      border-radius: 0.25rem;
+      cursor: pointer;
+      font-size: 0.7rem;
+      margin: 1rem;
+      margin-left: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="login">
+    <div class="user-details-container">
+      
+      <div class="user-header">
+        <div class="header-left">
+          <img src="./images/favicon.ico" alt="DProject Logo" class="logo__img">
+          <h1 style="font-size: 2.5rem; background: linear-gradient(45deg, #ff9a9e, #fad0c4); background-clip: text; -webkit-background-clip: text; -webkit-text-fill-color: transparent; color: transparent;">
+            Dashboard
+          </h1><br />
+        </div>
+        <a href="login.html" class="logout-btn" onclick="logout()">
+          <i class="ri-logout-box-r-line"></i> Logout
+        </a>
+      </div>
+      
+      <div class="welcome-section">
+        <h2 id="welcomeMessage">Welcome back!</h2>
+        <h3>ข้อมูลสมาชิก</h3>
+      </div>
+
+      <div class="user-grid">
+        <div class="user-card">
+          <div class="card-header">
+            <i class="ri-user-3-line card-icon"></i>
+            <h3>Personal Information</h3>
+          </div>
+          <p><strong>Name:</strong> <span id="displayName">Loading...</span></p>
+          <p><strong>Email:</strong> <span id="displayEmail">Loading...</span></p>
+          <p><strong>User ID:</strong> <span id="displayUserId" class="user-id">Loading...</span></p>
+          <p><strong>Data Source:</strong> <span id="dataSource" class="status-inactive">Checking...</span></p>
+        </div>
+
+        <div class="user-card">
+          <div class="card-header">
+            <i class="ri-time-line card-icon"></i>
+            <h3>Account Timeline</h3>
+          </div>
+          <p><strong>Member since:</strong> <span id="createdAt">Loading...</span></p>
+          <p><strong>Referrer ID:</strong> <span id="referrerId" class="user-id">Loading...</span></p>
+        </div>
+
+        <div class="user-card">
+          <div class="card-header">
+            <i class="ri-shield-keyhole-line card-icon"></i>
+            <h3>Security</h3>
+          </div>
+          <p><strong>Password:</strong> <span id="passwordStatus" class="status-inactive">Loading...</span></p>
+          <p><strong>Status:</strong> <span class="status-active">Active</span></p>
+        </div>
+      </div>
+
+      <div class="user-grid">
+        <div class="user-card">
+          <div class="card-header">
+            <i class="ri-token-swap-line card-icon"></i>
+            <h3>Token Information</h3>
+          </div>
+          <p><strong>Token ID:</strong> <span id="tokenId">Loading...</span></p>
+          <p><strong>Token Balance:</strong> <span id="tokenBalance">Loading...</span></p>
+        </div>
+
+        <div class="user-card">
+          <div class="card-header">
+            <i class="ri-team-line card-icon"></i>
+            <h3>Referral Program</h3>
+          </div>
+          <p><strong>Referrals:</strong> <span id="referralCount">Loading...</span></p>
+          <p><strong>Referral Code:</strong> <span class="user-id" id="referralCode">Loading...</span></p>
+        </div>
+      </div>
+
+      <div class="user-card">
+        <div class="card-header">
+          <i class="ri-flashlight-line card-icon"></i>
+          <h3>Quick Actions</h3>
+        </div>
+        <div class="actions-grid">
+          <button class="action-btn" onclick="showProfile()">
+            <i class="ri-user-settings-line"></i>
+            <span>Edit Profile</span>
+          </button>
+          <button class="action-btn" onclick="showReferrals()">
+            <i class="ri-share-line"></i>
+            <span>Share Referral</span>
+          </button>
+          <button class="action-btn" onclick="showTokens()">
+            <i class="ri-coins-line"></i>
+            <span>View Tokens</span>
+          </button>
+          <button class="action-btn" onclick="attemptDatabaseSync()">
+            <i class="ri-database-2-line"></i>
+            <span>Refresh Data</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="user-card">
+        <div class="card-header">
+          <i class="ri-settings-5-line card-icon"></i>
+          <h3>Plan Details</h3>
+        </div>
+        <div id="planDetails">Loading plan information...</div>
+      </div>
+
+      <!-- Connect & retry connecting database -->
+      <div class="demo-notice error" id="demoNotice">
+        <i class="ri-error-warning-line"></i> 
+        <span id="statusMessage">Cannot connect to API server</span>
+        <button class="diagnostics-toggle" onclick="toggleDiagnostics()">
+          <i class="ri-bug-line"></i> Show Diagnostics
+        </button>
+        <div class="api-status disconnected" id="apiStatus">
+          <i class="ri-wifi-off-line"></i>
+          <span>API server unavailable</span>
+        </div>
+      </div>
+
+      <div class="diagnostics-panel" id="diagnosticsPanel" style="display: none;">
+        <div><strong>Connection Diagnostics:</strong></div>
+        <div id="diagnosticsContent">Running tests...</div>
+      </div>
+
+      <div class="demo-notice" id="demoNotice">
+        <i class="ri-information-line"></i> 
+        <span id="statusMessage">Connecting to database...</span>
+        <button class="sync-btn" id="syncButton" onclick="attemptDatabaseSync()">
+          <i class="ri-refresh-line"></i> Retry Connection
+        </button>
+        <div class="api-status" id="apiStatus">
+          <i class="ri-wifi-line"></i>
+          <span>Checking API connection...</span>
+        </div>
+      </div>
+
+      <div class="user-card" id="troubleshootingCard" style="display: none;">
+          <div class="card-header">
+              <i class="ri-tools-line card-icon"></i>
+              <h3>Connection Troubleshooting</h3>
+          </div>
+          <div id="troubleshootingContent">
+              <p><strong>Issue:</strong> Cannot connect to PostgreSQL database</p>
+              <p><strong>Possible causes:</strong></p>
+              <ul style="margin-left: 1rem; margin-bottom: 1rem;">
+                <li>Next.js API server not running</li>
+                <li>CORS configuration issue</li>
+                <li>Network connectivity problem</li>
+                <li>Database connection string incorrect</li>
+              </ul>
+              <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 0.5rem; margin-top: 1rem;">
+                  <p style="font-family: monospace; font-size: 0.8rem; margin: 0.5rem 0;">
+                      // Check if Next.js server is running<br>
+                      // Verify CORS headers in API routes<br>
+                      // Check browser console for errors<br>
+                      // Verify database connection string
+                  </p>
+              </div>
+          </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Configuration for local XAMPP MySQL API
+    // Configuration for local XAMPP MySQL API
+    const API_CONFIG = {
+      baseUrl: 'http://localhost/users.dfi.fund',
+      endpoints: {
+        users: '/api/users.php',
+        health: '/api/users.php',
+        auth: '/api/users.php'
+      }
+    };
+
+    // // Configuration for Next.js API
+    // // Enhanced configuration with multiple endpoints
+    // const API_CONFIG = {
+    //   baseUrl: 'https://www.dfi.fund/api',
+    //   endpoints: {
+    //     users: '/users',
+    //     health: '/health', // Add a health check endpoint
+    //     auth: '/auth/validate'
+    //   },
+    //   fallbackUrls: [
+    //     'https://www.dfi.fund/api/users',
+    //     'http://localhost:3000/api/users' // For testing
+    //   ]
+    // };
+
+    // Enhanced diagnostics function
+    async function runConnectionDiagnostics() {
+      const diagnosticsContent = document.getElementById('diagnosticsContent');
+      let diagnosticsLog = '';
+      
+      const log = (message, type = 'info') => {
+        const timestamp = new Date().toLocaleTimeString();
+        const color = type === 'error' ? '#ff6b6b' : type === 'success' ? '#51cf66' : '#4cc9f0';
+        diagnosticsLog += `<div style="color: ${color}">[${timestamp}] ${message}</div>`;
+        diagnosticsContent.innerHTML = diagnosticsLog;
+      };
+
+      log('Starting connection diagnostics...');
+      
+      try {
+        // Test 1: Basic fetch to API
+        log('Test 1: Testing basic fetch to ' + API_CONFIG.baseUrl + API_CONFIG.endpoints.users);
+        
+        const response = await fetch(API_CONFIG.baseUrl + API_CONFIG.endpoints.users, {
+          method: 'GET',
+          mode: 'cors',
+          credentials: 'omit'
+        });
+        
+        log(`Response status: ${response.status}`, response.ok ? 'success' : 'error');
+        
+        if (response.ok) {
+          const data = await response.json();
+          
+          // Check the actual response structure
+          if (data.success && data.data) {
+            log(`✅ Success! Found ${Array.isArray(data.data) ? data.data.length : 'user'} data`, 'success');
+            log(`✅ Response structure: {success: true, data: [...], message: '...'}`, 'success');
+          } else if (Array.isArray(data)) {
+            log(`✅ Success! Found ${data.length} users (direct array response)`, 'success');
+            log(`✅ Response structure: Array[...]`, 'success');
+          } else {
+            log(`⚠️ Unexpected response structure: ${JSON.stringify(data).substring(0, 100)}...`, 'error');
+          }
+        } else {
+          log(`❌ HTTP Error: ${response.status} ${response.statusText}`, 'error');
+        }
+        
+      } catch (error) {
+        log(`❌ Fetch failed: ${error.message}`, 'error');
+        
+        // Test 2: Check if endpoint exists with different methods
+        log('Test 2: Checking endpoint accessibility...');
+        try {
+          const headResponse = await fetch(API_CONFIG.baseUrl + API_CONFIG.endpoints.users, {
+            method: 'HEAD'
+          });
+          log(`✅ Endpoint exists (HEAD request successful)`, 'success');
+        } catch (headError) {
+          log(`❌ Endpoint might not exist: ${headError.message}`, 'error');
+        }
+        
+        // Test 3: Try POST request
+        log('Test 3: Testing POST request...');
+        try {
+          const postResponse = await fetch(API_CONFIG.baseUrl + API_CONFIG.endpoints.users, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({email: 'rphumi799@gmail.com'})
+          });
+          log(`✅ POST request successful: ${postResponse.status}`, 'success');
+        } catch (postError) {
+          log(`❌ POST request failed: ${postError.message}`, 'error');
+        }
+      }
+      
+      // Test 4: Check specific user endpoint
+      log('Test 4: Testing user-specific endpoint...');
+      try {
+        const userResponse = await fetch(API_CONFIG.baseUrl + API_CONFIG.endpoints.users + '?email=rphumi799@gmail.com');
+        if (userResponse.ok) {
+          const userData = await userResponse.json();
+          if (userData.success && userData.data) {
+            log(`✅ User endpoint working - found: ${userData.data.name}`, 'success');
+          } else {
+            log(`⚠️ User endpoint returned unexpected format`, 'error');
+          }
+        } else {
+          log(`❌ User endpoint error: ${userResponse.status}`, 'error');
+        }
+      } catch (userError) {
+        log(`❌ User endpoint failed: ${userError.message}`, 'error');
+      }
+      
+      log('Diagnostics complete');
+    }
+
+    function toggleDiagnostics() {
+      const panel = document.getElementById('diagnosticsPanel');
+      if (panel.style.display === 'none') {
+        panel.style.display = 'block';
+        runConnectionDiagnostics();
+      } else {
+        panel.style.display = 'none';
+      }
+    }
+
+    // Enhanced connection function with multiple fallbacks
+    async function attemptDatabaseSync() {
+        const syncButton = document.getElementById('syncButton');
+        const statusMessage = document.getElementById('statusMessage');
+        const apiStatus = document.getElementById('apiStatus');
+        
+        syncButton.innerHTML = '<span class="loading-spinner"></span>Connecting...';
+        syncButton.classList.add('loading');
+        apiStatus.innerHTML = '<i class="ri-wifi-line"></i> Testing connections...';
+        
+        let connectionSuccessful = false;
+        let lastError = '';
+
+        try {
+            // Get current user email
+            const savedUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+            if (!savedUser) {
+                throw new Error('No user session found');
+            }
+            
+            const userData = JSON.parse(savedUser);
+            const userEmail = userData.email;
+            
+            console.log('Attempting to fetch user from local MySQL API...');
+            
+            // Try GET request with email parameter
+            const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.users}?email=${encodeURIComponent(userEmail)}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            console.log('API Response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`API returned status: ${response.status}`);
+            }
+            
+            const result = await response.json();
+            console.log('API Response:', result);
+            
+            // Handle the correct response structure {success: true, data: {...}, ...}
+            if (result.success && result.data) {
+                // Success! Update with real data from database
+                populateUserData(result.data, true);
+                
+                // Update storage with fresh data
+                const storage = localStorage.getItem('currentUser') ? localStorage : sessionStorage;
+                storage.setItem('currentUser', JSON.stringify({
+                    ...result.data,
+                    loginTime: userData.loginTime || new Date().toISOString(),
+                    usingLocalDB: true
+                }));
+                
+                statusMessage.innerHTML = '<i class="ri-database-2-line"></i> Connected to Local MySQL - Live Data';
+                document.getElementById('demoNotice').className = 'demo-notice success';
+                apiStatus.innerHTML = '<i class="ri-wifi-line"></i> Connected to Local MySQL API';
+                apiStatus.className = 'api-status connected';
+                connectionSuccessful = true;
+                
+            } else {
+                throw new Error(result.message || 'User not found in database response');
+            }
+            
+        } catch (error) {
+            lastError = error.message;
+            console.error('Database sync failed:', error);
+        }
+
+        if (!connectionSuccessful) {
+            // Fallback: Try POST request
+            try {
+                const savedUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+                if (savedUser) {
+                    const userData = JSON.parse(savedUser);
+                    const userEmail = userData.email;
+                    
+                    console.log('Trying POST method as fallback...');
+                    
+                    const postResponse = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.users}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({email: userEmail})
+                    });
+                    
+                    if (postResponse.ok) {
+                        const result = await postResponse.json();
+                        
+                        if (result.success && result.data) {
+                            populateUserData(result.data, true);
+                            
+                            const storage = localStorage.getItem('currentUser') ? localStorage : sessionStorage;
+                            storage.setItem('currentUser', JSON.stringify({
+                                ...result.data,
+                                loginTime: userData.loginTime || new Date().toISOString(),
+                                usingLocalDB: true
+                            }));
+                            
+                            statusMessage.innerHTML = '<i class="ri-database-2-line"></i> Connected to Local MySQL - Live Data';
+                            document.getElementById('demoNotice').className = 'demo-notice success';
+                            apiStatus.innerHTML = '<i class="ri-wifi-line"></i> Connected via POST';
+                            apiStatus.className = 'api-status connected';
+                            connectionSuccessful = true;
+                        }
+                    }
+                }
+            } catch (postError) {
+                console.error('POST fallback also failed:', postError);
+            }
+        }
+
+        if (!connectionSuccessful) {
+            // Final fallback to existing data
+            const savedUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+            if (savedUser) {
+                const userData = JSON.parse(savedUser);
+                
+                if (userData.usingLocalDB) {
+                    // We already have local DB data, just refresh the display
+                    populateUserData(userData, true);
+                    statusMessage.innerHTML = '<i class="ri-database-2-line"></i> Using cached database data';
+                    apiStatus.innerHTML = '<i class="ri-wifi-line"></i> Using cached connection';
+                    apiStatus.className = 'api-status connected';
+                } else {
+                    // Use mock data
+                    const enhancedUser = enhancedMockUsers[userData.email] || userData;
+                    populateUserData(enhancedUser, false);
+                    statusMessage.innerHTML = `<i class="ri-error-warning-line"></i> Using demo data - ${lastError}`;
+                    apiStatus.innerHTML = '<i class="ri-wifi-off-line"></i> API unavailable';
+                    apiStatus.className = 'api-status disconnected';
+                }
+            }
+            
+            document.getElementById('demoNotice').className = 'demo-notice error';
+        }
+        
+        syncButton.innerHTML = '<i class="ri-refresh-line"></i> Refresh Data';
+        syncButton.classList.remove('loading');
+    }
+
+    // Enhanced mock data as fallback
+    const enhancedMockUsers = {
+      'rphumi799@gmail.com': {
+        id: 3,
+        name: 'John Doe',
+        email: 'rphumi799@gmail.com',
+        user_id: '0x7a7D8894F59139370eBA12296EEb279b84fE017F',
+        referrer_id: '0x1234567890abcdef',
+        token_id: 'TOKEN_001',
+        created_at: '2025-11-20 07:17:27',
+        updated_at: '2025-11-20 07:17:27',
+        plan_a: {
+          dateTime: '2024-01-15T10:30:00Z',
+          POL: 1500.50,
+          rateTHBPOL: 35.75,
+          txHash: '0xabc123def456',
+          status: 'active'
+        }
+      },
+      'test@example.com': {
+        id: 4,
+        name: 'Test User',
+        email: 'test@example.com',
+        user_id: '0x1234567890abcdef1234567890abcdef12345678',
+        referrer_id: '0x1234567890abcdef',
+        token_id: 'TOKEN_002',
+        created_at: '2025-11-20 07:17:27',
+        updated_at: '2025-11-20 07:17:27',
+        plan_a: {
+          dateTime: '2024-03-20T14:25:00Z',
+          POL: 500.25,
+          rateTHBPOL: 34.20,
+          txHash: '0xdef456abc123',
+          status: 'pending'
+        }
+      }
+    };
+
+    // Main function to attempt database connection
+    async function attemptDatabaseSync() {
+        const syncButton = document.getElementById('syncButton');
+        const statusMessage = document.getElementById('statusMessage');
+        const apiStatus = document.getElementById('apiStatus');
+        
+        syncButton.innerHTML = '<span class="loading-spinner"></span>Connecting...';
+        syncButton.classList.add('loading');
+        apiStatus.innerHTML = '<i class="ri-wifi-line"></i> Connecting to API...';
+        
+        try {
+            // Get current user email
+            const savedUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+            if (!savedUser) {
+                throw new Error('No user session found');
+            }
+            
+            const userData = JSON.parse(savedUser);
+            const userEmail = userData.email;
+            
+            console.log('Attempting to fetch users from Next.js API...');
+            
+            // Try to fetch all users from Next.js API
+            const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.users}`, {
+                method: 'GET',
+                mode: 'cors',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+            
+            console.log('API Response status:', response.status);
+            
+            if (!response.ok) {
+                throw new Error(`API returned status: ${response.status}`);
+            }
+            
+            const users = await response.json();
+            console.log('Users fetched successfully:', users.length, 'users found');
+            
+            // Find current user in the database
+            const currentUser = users.find(user => 
+                user.email && user.email.toLowerCase() === userEmail.toLowerCase()
+            );
+            
+            if (currentUser) {
+                // Success! Update with real data from database
+                populateUserData(currentUser, true);
+                statusMessage.innerHTML = '<i class="ri-database-2-line"></i> Connected to PostgreSQL - Live Data';
+                document.getElementById('demoNotice').className = 'demo-notice success';
+                syncButton.innerHTML = '<i class="ri-refresh-line"></i> Refresh Data';
+                apiStatus.innerHTML = '<i class="ri-wifi-line"></i> Connected to Next.js API';
+                apiStatus.className = 'api-status connected';
+                
+                // Update data source indicator
+                document.getElementById('dataSource').textContent = 'Live Database';
+                document.getElementById('dataSource').className = 'status-active';
+                
+            } else {
+                // User not found in database, use mock data
+                throw new Error('User not found in database');
+            }
+            
+        } catch (error) {
+            console.error('Database sync failed:', error);
+            
+            // Fallback to mock data
+            const savedUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+            if (savedUser) {
+                const userData = JSON.parse(savedUser);
+                const enhancedUser = enhancedMockUsers[userData.email] || userData;
+                populateUserData(enhancedUser, false);
+            }
+            
+            let userFriendlyMessage = 'Using demo data - ';
+            if (error.message.includes('Failed to fetch')) {
+                userFriendlyMessage += 'Cannot connect to API server';
+                apiStatus.innerHTML = '<i class="ri-wifi-off-line"></i> API server unavailable';
+            } else if (error.message.includes('status:')) {
+                userFriendlyMessage += `API error: ${error.message}`;
+                apiStatus.innerHTML = '<i class="ri-error-warning-line"></i> API returned error';
+            } else {
+                userFriendlyMessage += error.message;
+                apiStatus.innerHTML = '<i class="ri-error-warning-line"></i> Connection failed';
+            }
+            
+            statusMessage.innerHTML = `<i class="ri-error-warning-line"></i> ${userFriendlyMessage}`;
+            document.getElementById('demoNotice').className = 'demo-notice error';
+            apiStatus.className = 'api-status disconnected';
+            
+            // Update data source indicator
+            document.getElementById('dataSource').textContent = 'Demo Data';
+            document.getElementById('dataSource').className = 'status-inactive';
+            
+            // Show retry button
+            setTimeout(() => {
+                syncButton.innerHTML = '<i class="ri-refresh-line"></i> Retry Connection';
+                syncButton.classList.remove('loading');
+            }, 1000);
+        }
+    }
+
+    function loadUserData() {
+        const savedUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+        
+        if (!savedUser) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        try {
+            const userData = JSON.parse(savedUser);
+            
+            // If we have local DB data, use it immediately
+            if (userData.usingLocalDB) {
+                console.log('Using local database data:', userData);
+                populateUserData(userData, true);
+                document.getElementById('statusMessage').innerHTML = '<i class="ri-database-2-line"></i> Connected to Local MySQL - Live Data';
+                document.getElementById('demoNotice').className = 'demo-notice success';
+                document.getElementById('apiStatus').innerHTML = '<i class="ri-wifi-line"></i> Connected to Local MySQL';
+                document.getElementById('apiStatus').className = 'api-status connected';
+            } else {
+                // Use mock data first, then try to connect
+                const enhancedUser = enhancedMockUsers[userData.email] || userData;
+                populateUserData(enhancedUser, false);
+                
+                // Then attempt real connection
+                setTimeout(() => attemptDatabaseSync(), 1000);
+            }
+        } catch (error) {
+            console.error('Error loading user data:', error);
+            window.location.href = 'login.html';
+        }
+    }
+
+    function populateUserData(user, isLiveData = false) {
+        // Get the original email from storage if not in user object
+        let userEmail = user.email;
+        if (!userEmail) {
+            const savedUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
+            if (savedUser) {
+                const storedData = JSON.parse(savedUser);
+                userEmail = storedData.email;
+            }
+        }
+        
+        // Populate user data
+        document.getElementById('welcomeMessage').textContent = `Welcome back, ${user.name || 'User'}!`;
+        document.getElementById('displayName').textContent = user.name || 'Not set';
+        document.getElementById('displayEmail').textContent = userEmail || 'Not set';
+        document.getElementById('displayUserId').textContent = user.user_id || 'Not set';
+        document.getElementById('createdAt').textContent = formatDate(user.created_at) || 'Not set';
+        document.getElementById('referrerId').textContent = user.referrer_id || 'None';
+        document.getElementById('tokenId').textContent = user.token_id || 'Not assigned';
+        document.getElementById('referralCode').textContent = (user.user_id ? user.user_id.substring(0, 16) + '...' : 'Not available');
+        
+        // Data source indicator
+        const dataSourceElement = document.getElementById('dataSource');
+        if (isLiveData) {
+            dataSourceElement.textContent = 'Live Database';
+            dataSourceElement.className = 'status-active';
+        } else {
+            dataSourceElement.textContent = 'Demo Data';
+            dataSourceElement.className = 'status-inactive';
+        }
+        
+        // Password status
+        const passwordStatus = document.getElementById('passwordStatus');
+        if (user.password_hash) {
+            passwordStatus.textContent = 'Set';
+            passwordStatus.className = 'status-active';
+        } else {
+            passwordStatus.textContent = 'Not Set';
+            passwordStatus.className = 'status-inactive';
+        }
+        
+        // Calculate referral count based on join date
+        const joinDate = new Date(user.created_at || new Date());
+        const daysSinceJoin = Math.floor((new Date() - joinDate) / (1000 * 60 * 60 * 24));
+        document.getElementById('referralCount').textContent = Math.floor(daysSinceJoin / 30);
+        
+        // Token balance
+        document.getElementById('tokenBalance').textContent = '0.00';
+        
+        // Display plan details
+        displayPlanDetails(user.plan_a);
+    }
+
+    function displayPlanDetails(planData) {
+      const planDetails = document.getElementById('planDetails');
+      
+      if (!planData) {
+        planDetails.innerHTML = '<p>No plan information available</p>';
+        return;
+      }
+
+      try {
+        // Parse JSON if it's a string, otherwise use as object
+        const plan = typeof planData === 'string' ? JSON.parse(planData) : planData;
+        
+        let html = '';
+        
+        // Handle different plan data structures
+        if (plan.plan) {
+          // New structure from Next.js API
+          html += `<p><strong>Plan:</strong> ${plan.plan || 'Unknown'}</p>`;
+          html += `<p><strong>Status:</strong> <span class="status-active">${plan.status || 'active'}</span></p>`;
+          
+          if (plan.features) {
+            const features = Array.isArray(plan.features) ? plan.features : [plan.features];
+            html += `<p><strong>Features:</strong> ${features.join(', ')}</p>`;
+          }
+          
+          if (plan.expires) {
+            html += `<p><strong>Expires:</strong> ${plan.expires}</p>`;
+          }
+          
+          if (plan.monthly_price) {
+            html += `<p><strong>Monthly Price:</strong> $${plan.monthly_price}</p>`;
+          }
+        } else {
+          // Original structure from your Next.js component
+          html += `<p><strong>POL:</strong> ${plan.POL || '0.00'}</p>`;
+          html += `<p><strong>Rate:</strong> ${plan.rateTHBPOL || '0.00'} THB/POL</p>`;
+          html += `<p><strong>Date:</strong> ${plan.dateTime ? formatDate(plan.dateTime) : 'N/A'}</p>`;
+          html += `<p><strong>Status:</strong> <span class="status-active">${plan.status || 'active'}</span></p>`;
+          if (plan.txHash) {
+            html += `<p><strong>TX Hash:</strong> <span class="user-id">${plan.txHash}</span></p>`;
+          }
+        }
+        
+        planDetails.innerHTML = html;
+      } catch (error) {
+        console.error('Error parsing plan details:', error);
+        planDetails.innerHTML = '<p>Error loading plan details</p>';
+      }
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return 'Not set';
+      
+      try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+      } catch (error) {
+        return dateString;
+      }
+    }
+    
+    function logout() {
+      localStorage.removeItem('currentUser');
+      sessionStorage.removeItem('currentUser');
+    }
+    
+    function showProfile() {
+      alert('Profile editing would open here in a real application');
+    }
+    
+    function showReferrals() {
+      const userId = document.getElementById('displayUserId').textContent;
+      alert(`Share your referral link: https://dfi.fund/ref/${userId}`);
+    }
+    
+    function showTokens() {
+      alert('Token management dashboard would open here');
+    }
+
+    function showTroubleshooting() {
+        const troubleshootingCard = document.getElementById('troubleshootingCard');
+        troubleshootingCard.style.display = troubleshootingCard.style.display === 'none' ? 'block' : 'none';
+    }
+    
+    // Load user data when page loads
+    document.addEventListener('DOMContentLoaded', loadUserData);
+  </script>
+</body>
+</html>
