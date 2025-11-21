@@ -481,14 +481,26 @@
   </div>
 
   <script>
+
+      // Configuration for your hosting server API
       const API_CONFIG = {
-        baseUrl: '', // Empty for same-domain requests on Vercel
+        baseUrl: 'https://users.3kok.app',
         endpoints: {
-          users: '/api/users',
-          login: '/api/users', 
-          validate: '/api/users'
+          users: '/api/users.php',
+          health: '/api/users.php',
+          auth: '/api/users.php'
         }
       };
+      
+      // // Configuration for local XAMPP MySQL API
+      // const API_CONFIG = {
+      //   baseUrl: 'http://localhost/users.dfi.fund',
+      //   endpoints: {
+      //     users: '/api/users.php',
+      //     health: '/api/users.php',
+      //     auth: '/api/users.php'
+      //   }
+      // };
 
       // Enhanced mock data as fallback
       const enhancedMockUsers = {
@@ -634,7 +646,6 @@
       }
 
       // Main connection function for local MySQL API
-      // Enhanced connection function for Neon PostgreSQL
       async function attemptDatabaseSync() {
           const syncButton = document.getElementById('syncButton');
           const statusMessage = document.getElementById('statusMessage');
@@ -644,7 +655,7 @@
           syncButton.innerHTML = '<span class="loading-spinner"></span>Refreshing...';
           syncButton.classList.add('loading');
           statusMessage.innerHTML = '<i class="ri-refresh-line"></i> Refreshing data...';
-          apiStatus.innerHTML = '<i class="ri-wifi-line"></i> Connecting to Remote MySQL...';
+          apiStatus.innerHTML = '<i class="ri-wifi-line"></i> Connecting to database...';
           
           try {
               // Get current user email from storage
@@ -656,10 +667,10 @@
               const userData = JSON.parse(savedUser);
               const userEmail = userData.email;
               
-              console.log('Refreshing data from Remote MySQL for:', userEmail);
+              console.log('Refreshing data for:', userEmail);
               
-              // Use the Vercel API endpoint
-              const userResponse = await fetch(`/api/users?email=${encodeURIComponent(userEmail)}`);
+              // Use the direct user endpoint with GET
+              const userResponse = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.users}?email=${encodeURIComponent(userEmail)}`);
               
               console.log('API Response status:', userResponse.status);
               
@@ -671,7 +682,7 @@
               console.log('API Response:', result);
               
               if (result.success && result.data) {
-                  // Success! Update with fresh data from Remote MySQL
+                  // Success! Update with fresh data from database
                   populateUserData(result.data, true);
                   
                   // Update storage with fresh data
@@ -679,51 +690,51 @@
                   const updatedUserData = {
                       ...result.data,
                       loginTime: userData.loginTime || new Date().toISOString(),
-                      usingRemoteDB: true,  // Updated flag
+                      usingLocalDB: true,
                       usingMockData: false,
                       lastSync: new Date().toISOString()
                   };
                   storage.setItem('currentUser', JSON.stringify(updatedUserData));
                   
                   // Update UI with success status
-                  statusMessage.innerHTML = '<i class="ri-database-2-line"></i> Connected to Remote MySQL - Live Data';
+                  statusMessage.innerHTML = '<i class="ri-database-2-line"></i> Connected to MySQL - Live Data';
                   demoNotice.className = 'demo-notice success';
-                  apiStatus.innerHTML = '<i class="ri-wifi-line"></i> Connected to Remote MySQL';
+                  apiStatus.innerHTML = '<i class="ri-wifi-line"></i> Data synchronized';
                   apiStatus.className = 'api-status connected';
                   
                   // Update data source indicator
-                  document.getElementById('dataSource').textContent = 'Remote MySQL';
+                  document.getElementById('dataSource').textContent = 'Live Database';
                   document.getElementById('dataSource').className = 'status-active';
                   
-                  console.log('Data refresh successful from Remote MySQL:', result.data);
+                  console.log('Data refresh successful:', result.data);
                   
               } else {
                   throw new Error(result.message || 'Failed to refresh user data');
               }
               
           } catch (error) {
-              console.error('Remote MySQL sync failed:', error);
+              console.error('Data refresh failed:', error);
               
               // Check if we have existing data to fall back to
               const savedUser = localStorage.getItem('currentUser') || sessionStorage.getItem('currentUser');
               if (savedUser) {
                   const existingData = JSON.parse(savedUser);
                   
-                  if (existingData.usingRemoteDB) {
-                      // We have existing remote data, just show warning
+                  if (existingData.usingLocalDB) {
+                      // We have existing database data, just show warning
                       populateUserData(existingData, true);
-                      statusMessage.innerHTML = '<i class="ri-error-warning-line"></i> Sync failed - using cached data';
+                      statusMessage.innerHTML = '<i class="ri-error-warning-line"></i> Refresh failed - using cached data';
                       apiStatus.innerHTML = '<i class="ri-error-warning-line"></i> Sync failed, using cache';
                       apiStatus.className = 'api-status disconnected';
                       
-                      document.getElementById('dataSource').textContent = 'Remote MySQL (Cached)';
+                      document.getElementById('dataSource').textContent = 'Live Database (Cached)';
                       document.getElementById('dataSource').className = 'status-active';
                   } else {
                       // We only have mock data
                       const enhancedUser = enhancedMockUsers[existingData.email] || existingData;
                       populateUserData(enhancedUser, false);
-                      statusMessage.innerHTML = `<i class="ri-error-warning-line"></i> Cannot connect to Remote MySQL - using demo data`;
-                      apiStatus.innerHTML = '<i class="ri-wifi-off-line"></i> Remote MySQL unavailable';
+                      statusMessage.innerHTML = `<i class="ri-error-warning-line"></i> Cannot connect to database - using demo data`;
+                      apiStatus.innerHTML = '<i class="ri-wifi-off-line"></i> Database unavailable';
                       apiStatus.className = 'api-status disconnected';
                       
                       document.getElementById('dataSource').textContent = 'Demo Data';
@@ -752,12 +763,12 @@
               console.log('Loading user data from storage:', userData);
               
               // Always populate with stored data first for immediate display
-              const isLiveData = userData.usingRemoteDB || false;  // Updated flag
+              const isLiveData = userData.usingLocalDB || false;
               populateUserData(userData, isLiveData);
               
               // Update initial status
               if (isLiveData) {
-                  document.getElementById('statusMessage').innerHTML = '<i class="ri-database-2-line"></i> Connected to Remote MySQL - Live Data';
+                  document.getElementById('statusMessage').innerHTML = '<i class="ri-database-2-line"></i> Connected to MySQL - Live Data';
                   document.getElementById('demoNotice').className = 'demo-notice success';
                   document.getElementById('apiStatus').innerHTML = '<i class="ri-wifi-line"></i> Connected to database';
                   document.getElementById('apiStatus').className = 'api-status connected';

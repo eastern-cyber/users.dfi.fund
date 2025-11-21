@@ -53,14 +53,37 @@
   </div>
 
   <script>
+
+    // Configuration for hosting server MySQL
     const API_CONFIG = {
-      baseUrl: '', // Empty for same-domain requests on Vercel
+      baseUrl: 'https://users.3kok.app',
       endpoints: {
-        users: '/api/users',
-        login: '/api/users', 
-        validate: '/api/users'
+        users: '/api/users.php',
+        login: '/api/users.php', 
+        validate: '/api/users.php'
       }
     };
+
+    // Alternative configuration if you need to point directly to the server
+    // const API_CONFIG = {
+    //   baseUrl: 'https://bhs3.name.tools', // Your server domain
+    //   endpoints: {
+    //     users: '/api/users.php',
+    //     login: '/api/users.php',
+    //     validate: '/api/users.php'
+    //   }
+    // };
+
+    // // Updated configuration for local XAMPP MySQL
+    // // Configuration for local XAMPP MySQL
+    // const API_CONFIG = {
+    //   baseUrl: 'http://localhost/users.dfi.fund', // Your XAMPP local server
+    //   endpoints: {
+    //     users: '/api/users.php',
+    //     login: '/api/users.php',
+    //     validate: '/api/users.php'
+    //   }
+    // };
 
     /*--================== Show Hidden - Password =================*/
     const showHiddenPass = (loginPass, loginEye) => {
@@ -134,16 +157,17 @@
 
     const validateUser = async (email, password) => {
       try {
-        console.log('Validating user via Remote MySQL API:', email);
+        console.log('Validating user via local MySQL API:', email);
         
-        const response = await fetch('/api/users', {
+        // Try to validate user via local MySQL API
+        const response = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.login}`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
           body: JSON.stringify({ 
             email: email,
-            password: password 
+            password: password
           })
         });
         
@@ -153,14 +177,15 @@
         
         const result = await response.json();
         
+        // Fix: Check the correct response structure
         if (result.success && result.data) {
-          console.log('User found in Remote MySQL database:', result.data);
+          console.log('User found in MySQL database:', result.data);
           
           return {
             success: true,
             user: result.data,
             token: generateToken(result.data),
-            usingRemoteDB: true,  // Updated flag
+            usingLocalDB: true,  // This is the key flag!
             usingMockData: false
           };
         } else {
@@ -168,9 +193,9 @@
         }
 
       } catch (error) {
-        console.error('Remote MySQL API error:', error);
+        console.error('Local MySQL API error:', error);
         
-        // Fallback to mock data if API is unavailable
+        // Fallback to mock data if local API is unavailable
         console.log('Falling back to mock data...');
         return await validateWithMockData(email, password);
       }
